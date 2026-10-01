@@ -1,6 +1,6 @@
 export const site = {
-  name: 'NORA',
-  role: 'DIGITAL INVENTOR',
+  name: 'Nora',
+  role: 'CREATIVE DEVELOPER',
   statement: 'Full-stack development × creative development × interactive design',
   location: 'Rwanda',
   year: 2026,

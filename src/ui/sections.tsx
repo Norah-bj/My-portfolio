@@ -48,14 +48,14 @@ export function Hero() {
       </h1>
       <div
         data-hero
-        className="mt-2 flex items-center gap-4 opacity-0"
+        className="mt-2 flex items-center justify-center gap-3 opacity-0 sm:gap-4"
         style={{ transform: 'translateY(30px)', filter: 'blur(6px)' }}
       >
-        <span className="h-px w-10 bg-ice/50" />
-        <h2 className="font-disp text-[clamp(1rem,2.6vw,1.6rem)] font-light tracking-[0.55em] text-ice">
-          DIGITAL INVENTOR
+        <span className="h-px w-5 shrink-0 bg-ice shadow-[0_0_8px_rgba(157,185,255,0.9)] sm:w-10" />
+        <h2 className="whitespace-nowrap font-disp text-[clamp(0.72rem,3.3vw,1.6rem)] font-light tracking-[0.18em] text-ice">
+          FULL-STACK DEVELOPER
         </h2>
-        <span className="h-px w-10 bg-ice/50" />
+        <span className="h-px w-5 shrink-0 bg-ice shadow-[0_0_8px_rgba(157,185,255,0.9)] sm:w-10" />
       </div>
       <p
         data-hero
@@ -302,6 +302,11 @@ export function About() {
         <p data-reveal className="mt-8 text-sm leading-relaxed text-mute">
           Interested in software engineering, creative frontend development, interactive
           experiences, AI, systems, and design — and in the space where they overlap.
+        </p>
+        <p data-reveal className="mt-4 text-sm leading-relaxed text-mute">
+          Mugisha Ineza Nora, known publicly as Nora, is a computer science student and creative
+          developer from Rwanda building interactive digital experiences, software systems, and
+          thoughtful interfaces.
         </p>
         <div data-reveal className="mt-10 flex flex-wrap gap-2">
           {['SOFTWARE ENGINEERING', 'CREATIVE FRONTEND', 'INTERACTIVE', 'AI', 'SYSTEMS', 'DESIGN'].map((t) => (

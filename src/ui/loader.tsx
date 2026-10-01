@@ -2,9 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useStore } from '../store'
 
 /**
- * Load sequence: rAF-driven progress (immune to main-thread stalls that
- * throttle setInterval), with a hard cap so the loader can never trap
- * the experience — even on very slow hardware.
+ * A short rAF-driven intro that does not hold the page behind a fake wait.
  */
 export function Loader() {
   const phase = useStore((s) => s.phase)
@@ -16,23 +14,30 @@ export function Loader() {
 
   useEffect(() => {
     const t0 = performance.now()
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const duration = reducedMotion ? 0 : 450
     let raf = 0
+    let introTimer = 0
+    let idleTimer = 0
     const tick = () => {
       const el = performance.now() - t0
-      // eased fill: fast start, decelerating, guaranteed done at 2.4s
-      const lin = Math.min(1, el / 2400)
+      const lin = duration === 0 ? 1 : Math.min(1, el / duration)
       p.current = Math.min(100, 100 * (1 - Math.pow(1 - lin, 2.2)))
       if (barRef.current) barRef.current.style.transform = `scaleX(${p.current / 100})`
       if (numRef.current) numRef.current.textContent = String(Math.round(p.current)).padStart(3, '0')
       if (lin < 1) raf = requestAnimationFrame(tick)
       else {
         useStore.getState().setProgress(100)
-        setTimeout(() => useStore.getState().setPhase('intro'), 250)
-        setTimeout(() => useStore.getState().setPhase('idle'), 1250)
+        introTimer = window.setTimeout(() => useStore.getState().setPhase('intro'), reducedMotion ? 0 : 100)
+        idleTimer = window.setTimeout(() => useStore.getState().setPhase('idle'), reducedMotion ? 0 : 450)
       }
     }
     raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.clearTimeout(introTimer)
+      window.clearTimeout(idleTimer)
+    }
   }, [])
 
   useEffect(() => {

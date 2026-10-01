@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react'
+import { useEffect, lazy, Suspense, useState } from 'react'
 const Scene = lazy(() => import('./three/Scene').then((m) => ({ default: m.Scene })))
 import { Loader } from './ui/loader'
 import { Nav } from './ui/nav'
@@ -10,7 +10,10 @@ import { useStore } from './store'
 import gsap from 'gsap'
 
 export default function App() {
+  const [sceneReady, setSceneReady] = useState(false)
+
   useEffect(() => {
+    useStore.getState().setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     useStore.getState().setPhase('loading')
     document.documentElement.classList.add('ready')
 
@@ -29,11 +32,18 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSceneReady(true), 250)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   return (
     <>
-      <Suspense fallback={null}>
-        <Scene />
-      </Suspense>
+      {sceneReady && (
+        <Suspense fallback={null}>
+          <Scene />
+        </Suspense>
+      )}
       <Loader />
       <Cursor />
       <Nav />

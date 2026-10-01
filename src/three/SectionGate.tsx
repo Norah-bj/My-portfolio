@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
 import { continuousIndex } from './scroll'
@@ -18,6 +18,7 @@ export function SectionGate({
   children: ReactNode
 }) {
   const ref = useRef<Group>(null)
+  const [active, setActive] = useState(false)
 
   useFrame(() => {
     const g = ref.current
@@ -26,8 +27,10 @@ export function SectionGate({
     // distance to the section CENTER, not its start.
     const idx = continuousIndex()
     const dist = Math.abs(idx - (index + 0.5))
-    g.visible = dist < band || (g.visible && dist < band + 0.2)
+    const nextActive = dist < band || (active && dist < band + 0.2)
+    g.visible = nextActive
+    if (nextActive !== active) setActive(nextActive)
   })
 
-  return <group ref={ref}>{children}</group>
+  return <group ref={ref}>{active ? children : null}</group>
 }

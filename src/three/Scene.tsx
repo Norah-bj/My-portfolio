@@ -1,21 +1,23 @@
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { lazy } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { AdaptiveDpr, AdaptiveEvents } from '@react-three/drei'
 import * as THREE from 'three'
-import { useStore } from '../store'
+import { useStore, type Quality } from '../store'
 import { CameraRig } from './cameraRig'
 import { Dust, GlowPlanes } from './dust'
-import { HeroCrystal } from './heroCrystal'
-import { WorkGallery } from './workGallery'
-import { ParticleField } from './experiments'
-import { SkillConstellation } from './skills'
-import { IdentityShard, CodeDesignMerge, ContactCore, Lighting } from './objects'
-import { AboutCard } from './about'
+import { Lighting } from './lighting'
 import { SectionGate } from './SectionGate'
 
-function SceneContents() {
-  const quality = useStore((s) => s.quality)
-  const reducedMotion = useStore((s) => s.reducedMotion)
+const HeroCrystal = lazy(() => import('./heroCrystal').then((module) => ({ default: module.HeroCrystal })))
+const IdentityShard = lazy(() => import('./objects').then((module) => ({ default: module.IdentityShard })))
+const WorkGallery = lazy(() => import('./workGallery').then((module) => ({ default: module.WorkGallery })))
+const ParticleField = lazy(() => import('./experiments').then((module) => ({ default: module.ParticleField })))
+const SkillConstellation = lazy(() => import('./skills').then((module) => ({ default: module.SkillConstellation })))
+const CodeDesignMerge = lazy(() => import('./objects').then((module) => ({ default: module.CodeDesignMerge })))
+const AboutCard = lazy(() => import('./about').then((module) => ({ default: module.AboutCard })))
+const ContactCore = lazy(() => import('./objects').then((module) => ({ default: module.ContactCore })))
+
+function SceneContents({ quality, reducedMotion }: { quality: Quality; reducedMotion: boolean }) {
   const low = quality === 'low'
 
   return (
@@ -29,31 +31,43 @@ function SceneContents() {
         <SectionGate index={0} band={0.62}>
           <HeroCrystal lowQuality={low} reducedMotion={reducedMotion} />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={1} band={0.62}>
           <IdentityShard />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={2} band={0.62}>
           <WorkGallery />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={3} band={0.62}>
           <ParticleField lowQuality={low} />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={4} band={0.62}>
           <SkillConstellation lowQuality={low} />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={5} band={0.62}>
           <CodeDesignMerge />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={6} band={0.62}>
           <AboutCard />
         </SectionGate>
+      </Suspense>
+      <Suspense fallback={null}>
         <SectionGate index={7} band={0.62}>
           <ContactCore />
         </SectionGate>
       </Suspense>
       <CameraRig />
-      <AdaptiveDpr pixelated={false} />
-      <AdaptiveEvents />
     </>
   )
 }
@@ -62,20 +76,34 @@ export function Scene() {
   const setQuality = useStore((s) => s.setQuality)
   const setReducedMotion = useStore((s) => s.setReducedMotion)
   const canvasRef = useRef<HTMLDivElement>(null)
+  const [deviceQuality] = useState<Quality>(() => {
+    const mobile = typeof window !== 'undefined' && window.innerWidth < 768
+    const cores = typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency ?? 4) : 4
+    return mobile || cores <= 4 ? 'low' : 'high'
+  })
+  const [deviceReducedMotion] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  )
+  const [visible, setVisible] = useState(() => !document.hidden)
 
   useEffect(() => {
-    const mobile = window.innerWidth < 768
-    const cores = navigator.hardwareConcurrency ?? 4
-    setQuality(mobile || cores <= 4 ? 'low' : 'high')
-    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  }, [setQuality, setReducedMotion])
+    const updateVisibility = () => setVisible(!document.hidden)
+    document.addEventListener('visibilitychange', updateVisibility)
+    return () => document.removeEventListener('visibilitychange', updateVisibility)
+  }, [])
+
+  useEffect(() => {
+    setQuality(deviceQuality)
+    setReducedMotion(deviceReducedMotion)
+  }, [deviceQuality, deviceReducedMotion, setQuality, setReducedMotion])
 
   return (
     <div ref={canvasRef} className="fixed inset-0 z-0">
       <Canvas
-        dpr={[1, 2]}
+        frameloop={visible ? 'always' : 'never'}
+        dpr={deviceQuality === 'low' ? 1 : [1, 1.5]}
         gl={{
-          antialias: true,
+          antialias: false,
           powerPreference: 'high-performance',
           alpha: false,
           stencil: false,
@@ -89,7 +117,7 @@ export function Scene() {
         }}
         style={{ position: 'fixed', inset: 0 }}
       >
-        <SceneContents />
+        <SceneContents quality={deviceQuality} reducedMotion={deviceReducedMotion} />
       </Canvas>
     </div>
   )

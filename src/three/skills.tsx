@@ -1,6 +1,5 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Line } from '@react-three/drei'
 import * as THREE from 'three'
 import { skills } from '../data/skills'
 import { useStore } from '../store'
@@ -111,19 +110,23 @@ export function SkillConstellation({ lowQuality }: { lowQuality: boolean }) {
       {links.map((l, i) => {
         const pa = l.a === -1 ? [0, 0, 0] : nodes[l.a].pos
         const pb = nodes[l.b].pos
+        const pointA = pa as [number, number, number]
+        const pointB = pb as [number, number, number]
         return (
-          <Line
+          <line
             key={i}
-            ref={(el: unknown) => {
+            ref={(el) => {
               lineRefs.current[i] = el
             }}
-            points={[pa as [number, number, number], pb as [number, number, number]]}
-            color="#7d98e0"
-            transparent
-            opacity={0.22}
-            lineWidth={1}
-            dashed={false}
-          />
+          >
+            <bufferGeometry>
+              <bufferAttribute
+                attach="attributes-position"
+                args={[new Float32Array([...pointA, ...pointB]), 3]}
+              />
+            </bufferGeometry>
+            <lineBasicMaterial color="#7d98e0" transparent opacity={0.22} />
+          </line>
         )
       })}
 
