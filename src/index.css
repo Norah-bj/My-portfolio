@@ -1,0 +1,114 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #0b0d12;
+  --bone: #e8e9ee;
+  --mute: #8a8f9d;
+  --faint: #4a4f5c;
+  --ice: #9db9ff;
+  --violet: #b79bff;
+}
+
+html {
+  background: var(--ink);
+  scroll-behavior: auto; /* Lenis handles smoothing */
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(157, 185, 255, 0.25);
+  color: #fff;
+}
+
+/* thin, quiet scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(157, 185, 255, 0.18);
+  border-radius: 2px;
+}
+
+/* hide native cursor only on fine pointers where the custom one runs.
+   The custom cursor itself renders at z-100 with mix-blend-difference,
+   so it stays visible above every surface including overlays. */
+@media (pointer: fine) {
+  html.ready,
+  html.ready a,
+  html.ready button,
+  html.ready [data-cursor],
+  html.ready [role='dialog'] {
+    cursor: none;
+  }
+}
+
+/* coarse pointers (touch): native cursor behavior + subtle tap highlight */
+@media (pointer: coarse) {
+  html.ready,
+  html.ready a,
+  html.ready button {
+    cursor: auto;
+  }
+}
+
+body {
+  -webkit-tap-highlight-color: rgba(157, 185, 255, 0.12);
+}
+
+/* focus visibility — the 3D must never trap the keyboard */
+:focus-visible {
+  outline: 1px solid rgba(157, 185, 255, 0.7);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@keyframes scroll-hint {
+  0% {
+    transform: scaleY(0);
+    transform-origin: top;
+  }
+  45% {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  55% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+  100% {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+}
+
+.animate-scroll-hint {
+  animation: scroll-hint 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+/* case overlay scrollbar */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 3px;
+}
+
+/* reduced motion: strip ambient animation entirely */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
