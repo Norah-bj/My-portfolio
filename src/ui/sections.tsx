@@ -88,9 +88,9 @@ export function Identity() {
           <h3
             key={w}
             data-reveal
-            className={`font-disp font-semibold tracking-tight text-bone/95 ${
-              i === 1 ? 'ml-[8vw] text-[clamp(2.2rem,5.4vw,4rem)] sm:ml-[12vw]' : i === 2 ? 'ml-[16vw] text-[clamp(1.6rem,4.2vw,3.2rem)] text-mute sm:ml-[24vw]' : 'text-[clamp(2.8rem,8vw,6.5rem)]'
-            }`}
+  className={`font-disp font-semibold tracking-tight text-bone/95 ${
+    i === 0 ? 'whitespace-nowrap text-[clamp(4rem,7vw,7rem)]' : i === 1 ? 'ml-[8vw] text-[clamp(2.2rem,5.4vw,4rem)] sm:ml-[12vw]' : i === 2 ? 'ml-[16vw] text-[clamp(1.6rem,4.2vw,3.2rem)] text-mute sm:ml-[24vw]' : 'text-[clamp(2.8rem,8vw,6.5rem)]'
+  }`}
           >
             {w}
           </h3>
